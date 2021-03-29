@@ -6,7 +6,8 @@ class Mafias extends Players{
     }
 
     //constructor
-    public Mafias(){
+    public Mafias(String name, Roles role){
+        super(name, role);
 
     }
 
@@ -20,21 +21,14 @@ class Mafias extends Players{
                 break;
             }
         }
-        //its method for deleting a player from game.. i can use it at future
-//        for(int i=0; i<MainGame.size; i++){
-//            if(MainGame.NameOfPlayers[i].equals(name)){
-//                MainGame.NameOfPlayers[i]=null;
-//                for(int j=i; j<MainGame.size; j++){
-//                    MainGame.NameOfPlayers[j]=MainGame.NameOfPlayers[j+1];
-//                }
-//                MainGame.size--;
-//                MainGame.NameOfPlayers[MainGame.size]=null;
-//            }
-//        }
     }
 }
 
 class Silencer extends Mafias{
+
+    public Silencer(String name, Roles role) {
+        super(name, role);
+    }
 
     //silencer silence a player with this method
     public void silence(String name){

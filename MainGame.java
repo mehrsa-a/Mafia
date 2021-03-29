@@ -14,6 +14,7 @@ class MainGame{
 
 
         do{
+
             String action= scanner.next();
 
 
@@ -28,40 +29,120 @@ class MainGame{
                     }
                 }
 
-                for(int i=0; i<size; i++){
-                    Player[i].name=NameOfPlayers[i];
-                }
-
             }
 
             else if(action.equals("assign_role")){
 
                 String name=scanner.next();
                 String role=scanner.next();
-                for(int i=0; i<size; i++){
-                    if(Player[i].name==name){
+
+                for(int i=0, k=0; i<size; i++){
+                    if(NameOfPlayers[i].equals(name)){
                         for(int j=0; j<9; j++){
-                            if(role.equals(roles[i].toString())){
-                                Player[i].role=roles[i];
+                            if(role.equals(roles[j].toString())){
+                                Player[k]= new Players(name, roles[j]);
+                                k++;
                             }
                         }
                     }
                 }
+
             }
 
             else if(action.equals("start_game")){
 
-            }
+                System.out.println(myToString(Player));
+                System.out.println("\n"+"Ready?\nSet!\n\nGO!!!");
 
-            else if(action.equals("end_vote")){
+                int day=1, night=1, counter=0;
 
-            }
 
-            else if(action.equals("end_night")){
+                do{
 
-            }
+                    if(counter%2==0){
+                        System.out.println("Day "+day);
+                    }
+                    else{
+                        System.out.println("Night "+night);
+                    }
 
-            else if(action.equals("get_game_state")){
+                    String act=scanner.next();
+
+                    if(act.equals("end_vote")){
+
+                        counter++;
+
+                        int max=Player[0].DayVoted;
+                        for(int i=0; i<size; i++){
+                            for(int j=0; j<size; j++){
+                                if(Player[j].DayVoted>Player[i].DayVoted){
+                                    max=Player[j].DayVoted;
+                                }
+                            }
+                        }
+
+                        int c=0;
+                        for(int i=0; i<size; i++){
+                            if(Player[i].DayVoted==max){
+                                c++;
+                            }
+                        }
+
+
+                        if(c>1){
+                            System.out.println("nobody died");
+                        }
+
+                        else{
+
+                            for(int i=0; i<size; i++){
+
+                                if(max==Player[i].DayVoted){
+
+                                    if(Player[i].role==Roles.Joker){
+                                        System.out.println("Joker won!");
+                                    }
+
+                                    else{
+                                        System.out.println(Player[i].name+" died");
+                                        kill(Player[i]);
+                                    }
+
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                    else if(act.equals("end_night")){
+
+                        counter++;
+                    }
+
+                    else if(act.equals("get_game_state")){
+
+                    }
+
+                    else{
+                        String voted=scanner.next();
+                        if(counter%2==0){
+                            for(int i=0; i<size; i++){
+                                if(Player[i].name.equals(voted)){
+                                    Player[i].DayVoted++;
+                                    break;
+                                }
+                            }
+                        }
+                        else{
+
+                        }
+                    }
+
+
+                }while(true);
+
 
             }
 
@@ -72,9 +153,29 @@ class MainGame{
 
 
     public static String[] cut(String input){
-        String[] commands = {};
+        String[] commands;
         commands = input.split(" ");
         return commands;
     }
 
+    public static String myToString(Players[] input){
+        String ans="";
+        for(int i=0; i<size; i++){
+            ans=ans+input[i].name+": "+input[i].role.toString()+"\n";
+        }
+        return ans;
+    }
+
+    public static void kill(Players input){
+        for(int i=0; i<size; i++){
+            if(input==Player[i]){
+                Player[i]=null;
+                for(int j=i; j<size; j++){
+                    Player[j]=Player[j+1];
+                }
+                size--;
+                Player[size]=null;
+            }
+        }
+    }
 }

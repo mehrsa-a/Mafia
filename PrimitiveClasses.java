@@ -16,7 +16,7 @@ enum Roles{
 
 class Players{
 
-    String name;
+    String name="";
     Roles role;
     int DayVoted=0;
     boolean silenced=false;
@@ -34,7 +34,9 @@ class Players{
     }
 
     //constructor
-    public Players(){
+    public Players(String name, Roles role){
+        this.name=name;
+        this.role=role;
 
     }
 
