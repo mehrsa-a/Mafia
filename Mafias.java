@@ -1,6 +1,7 @@
 class Mafias extends Players{
 
     public static int numberOfMafias;
+    //initialize block to number of Mafias
     {
         numberOfMafias+=1;
     }
@@ -25,6 +26,8 @@ class Mafias extends Players{
 }
 
 class Silencer extends Mafias{
+
+    boolean called=false;
 
     public Silencer(String name, Roles role) {
         super(name, role);

@@ -22,6 +22,7 @@ class Players{
     boolean silenced=false;
     Players[] information= new Players[100];
     int lives;
+    //initialize block to number of player's life
     {
         for(int i=0; i<100; i++){
             if(MainGame.Player[i].role==Roles.bulletproof){

@@ -1,13 +1,16 @@
 class NightVoting extends Players{
     int NightVoted=0;
 
+    //constructor
     public NightVoting(String name, Roles role) {
         super(name, role);
     }
 }
+
 class Villagers extends NightVoting{
 
     public static int numberOfVillagers;
+    //initialize block to number of villagers
     {
         numberOfVillagers+=1;
     }
@@ -21,8 +24,10 @@ class Villagers extends NightVoting{
 }
 
 class  Detective extends Villagers{
+
     int k=0;
 
+    //constructor
     public Detective(String name, Roles role) {
         super(name, role);
     }
@@ -61,15 +66,19 @@ class  Detective extends Villagers{
 
 class Doctor extends Villagers{
 
+    //constructor
     public Doctor(String name, Roles role) {
         super(name, role);
     }
 
-    public void choose(String name){
-        for(int i=0; i<100; i++){
+    public Players choose(String name){
+        int i;
+        for(i=0; i<100; i++){
             if(MainGame.Player[i].name==name){
                 MainGame.Player[i].lives+=1;
+                break;
             }
         }
+        return MainGame.Player[i];
     }
 }
