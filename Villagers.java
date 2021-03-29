@@ -43,13 +43,11 @@ class  Detective extends Villagers{
 }
 
 class Doctor extends Villagers{
-
-}
-
-class Bulletproof extends Villagers{
-
-}
-
-class Villager extends Villagers{
-
+    public void choose(String name){
+        for(int i=0; i<100; i++){
+            if(MainGame.Player[i].name==name){
+                MainGame.Player[i].lives+=1;
+            }
+        }
+    }
 }

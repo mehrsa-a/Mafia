@@ -21,6 +21,17 @@ class Players{
     int DayVoted=0;
     boolean silenced=false;
     Players[] information= new Players[100];
+    int lives;
+    {
+        for(int i=0; i<100; i++){
+            if(MainGame.Player[i].role==Roles.bulletproof){
+                MainGame.Player[i].lives=2;
+            }
+            else{
+                MainGame.Player[i].lives=1;
+            }
+        }
+    }
 
     //constructor
     public Players(){
