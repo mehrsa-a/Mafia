@@ -17,6 +17,7 @@ class Mafias extends Players{
             if(MainGame.Player[i].name==name){
                 NightVoting temp= (NightVoting) MainGame.Player[i];
                 temp.NightVoted++;
+                break;
             }
         }
         //its method for deleting a player from game.. i can use it at future
@@ -33,20 +34,15 @@ class Mafias extends Players{
     }
 }
 
-//class Godfather extends Mafias{
-//
-//}
-
 class Silencer extends Mafias{
+
+    //silencer silence a player with this method
     public void silence(String name){
         for(int i=0; i<100; i++){
             if(MainGame.Player[i].name==name){
                 MainGame.Player[i].silenced=true;
+                break;
             }
         }
     }
 }
-//class Mafia extends Mafias{
-//
-//}
-
