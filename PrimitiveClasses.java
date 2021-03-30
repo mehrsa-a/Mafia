@@ -21,45 +21,13 @@ class Players{
     int DayVoted=0;
     boolean silenced=false;
     Players[] information= new Players[100];
-    int lives;
-    //initialize block to number of player's life
-    {
-        for(int i=0; i<100; i++){
-            if(MainGame.Player[i].role==Roles.bulletproof){
-                MainGame.Player[i].lives=2;
-            }
-            else{
-                MainGame.Player[i].lives=1;
-            }
-        }
-    }
+    int lives=2;
 
     //constructor
     public Players(String name, Roles role){
         this.name=name;
         this.role=role;
 
-    }
-
-    //mafia's should recognize each other but villagers don't khow each other
-    {
-        int k=0;
-        for(int i=0; i<100; i++){
-            if(MainGame.Player[i].role==Roles.mafia||MainGame.Player[i].role==Roles.godfather||MainGame.Player[i].role==Roles.silencer){
-                for(int j=0; j<100; j++){
-                    if(MainGame.Player[j].role==Roles.mafia||MainGame.Player[j].role==Roles.godfather||MainGame.Player[j].role==Roles.silencer){
-                        MainGame.Player[i].information[k].name=MainGame.Player[i].name;
-                        MainGame.Player[i].information[k].role=Roles.mafia;
-                        k++;
-                    }
-                    else{
-                        MainGame.Player[i].information[k].name=MainGame.Player[i].name;
-                        MainGame.Player[i].information[k].role=Roles.villager;
-                        k++;
-                    }
-                }
-            }
-        }
     }
 
     //every player got a vote everyday

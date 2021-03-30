@@ -2,20 +2,26 @@ import java.util.Scanner;
 
 class MainGame{
 
+    //public vars
     public static Players[] Player=new Players[100];
     public static int size=0;
 
     public static void main(String[] args){
 
+        //vars
         String[] NameOfPlayers=new String[100];
-        Roles[] roles={ Roles.Joker, Roles.mafia, Roles.godfather, Roles.silencer, Roles.villager, Roles.detective, Roles.bulletproof, Roles.doctor, Roles.unknown};
-        String ans="";
-        Players saved=new Players(" ", Roles.unknown);
-        Scanner scanner=new Scanner(System.in);
         int sizeOf=0;
+        Roles[] roles={ Roles.Joker, Roles.mafia, Roles.godfather, Roles.silencer, Roles.villager, Roles.detective, Roles.bulletproof, Roles.doctor, Roles.unknown};
+        //for inner while condition
+        String ans="";
+        //the one who doctor save at night
+        Players saved=new Players(" ", Roles.mafia);
+
+        Scanner scanner=new Scanner(System.in);
 
 
         do{
+
 
             String action= scanner.next();
 
@@ -38,6 +44,37 @@ class MainGame{
                 String name=scanner.next();
                 String role=scanner.next();
 
+                /*int x=0;
+                for(int i=0; i<sizeOf; i++){
+                    //recognize game
+                    if(NameOfPlayers[i]==null){
+                        System.out.println("no game created");
+                        continue;
+                    }
+                    //recognize players
+                    if(name!=NameOfPlayers[i]){
+                        x++;
+                    }
+                }
+                if(x==sizeOf){
+                    System.out.println("user not found");
+                    name=scanner.next();
+                    role=scanner.next();
+                }
+
+                //recognize roles
+                x=0;
+                for(int i=0; i<9; i++){
+                    if(!role.equals(roles[i].toString())){
+                        x++;
+                    }
+                }
+                if(x==9){
+                    System.out.println("role not found");
+                    name=scanner.next();
+                    role=scanner.next();
+                }*/
+
                 Roles temp=Roles.unknown;
                 for(int j=0; j<9; j++){
                     if(role.equals(roles[j].toString())){
@@ -45,11 +82,37 @@ class MainGame{
                         break;
                     }
                 }
-                Player[size]=new Players(name, temp);
-                size++;
+                if(temp==Roles.mafia||temp==Roles.silencer|| temp==Roles.godfather){
+                    Player[size]=new Mafias(name, temp);
+                    size++;
+                }
+                else if(temp==Roles.Joker){
+                    Player[size]=new NightVoting(name, temp);
+                    size++;
+                }
+                else{
+                    Player[size]=new Villagers(name, temp);
+                    size++;
+                }
             }
 
             else if(action.equals("start_game")){
+
+                //recognize game
+                /*for(int i=0; i<sizeOf; i++) {
+                    if (NameOfPlayers[i] == null) {
+                        System.out.println("no game created");
+                        continue;
+                    }
+                }
+
+                //recognize roles
+                for(int i=0; i<size; i++){
+                    if(Player[i].role==null){
+                        System.out.println("one or more player do not have a role");
+                        continue;
+                    }
+                }*/
 
                 System.out.println(myToString(Player));
                 System.out.println("\n"+"Ready?\nSet!\n\nGO!!!");
@@ -59,6 +122,7 @@ class MainGame{
 
                 do{
 
+                    //insist day and night
                     if(counter%2==0){
                         System.out.println("Day "+day);
                     }
@@ -68,7 +132,12 @@ class MainGame{
 
                     String act=scanner.next();
 
-                    if(act.equals("end_vote")){
+                    if(act.equals("start_game")){
+                        System.out.println("game has already started");
+                        act=scanner.next();
+                    }
+
+                    else if(act.equals("end_vote")){
 
                         counter++;
 
@@ -168,14 +237,34 @@ class MainGame{
                         }
 
                         if(!killedInThisDay && saved!=max){
-                            kill(max);
-                            System.out.println("mafia tried to kill"+max.name);
-                            System.out.println(max.name+"was killed");
+                            if(max.role==Roles.bulletproof){
+                                max.lives--;
+                                if(max.lives==0){
+                                    kill(max);
+                                    System.out.println("mafia tried to kill"+max.name);
+                                    System.out.println(max.name+"was killed");
+                                }
+                            }
+                            else{
+                                kill(max);
+                                System.out.println("mafia tried to kill"+max.name);
+                                System.out.println(max.name+"was killed");
+                            }
                         }
+
+                        if(Villagers.numberOfVillagers<=Mafias.numberOfMafias){
+                            System.out.println("Mafia won!");
+                            ans="Mafia won!";
+                        }
+                        else if(Mafias.numberOfMafias==0){
+                            System.out.println("Villagers won!");
+                            ans="Villagers won!";
+                        }
+
                     }
 
                     else if(act.equals("get_game_state")){
-                        System.out.println(myToString(Player));
+                        System.out.println("Mafia = "+Mafias.numberOfMafias+"\nVillager = "+Villagers.numberOfVillagers);
                     }
 
                     else{
@@ -263,7 +352,7 @@ class MainGame{
             }
 
 
-        }while (true);
+        }while (scanner.hasNext());
 
     }
 
@@ -286,6 +375,12 @@ class MainGame{
         for(int i=0; i<size; i++){
             if(input==Player[i]){
                 Player[i]=null;
+                if(Player[i] instanceof Mafias){
+                    Mafias.numberOfMafias--;
+                }
+                else if(Player[i] instanceof Villagers){
+                    Villagers.numberOfVillagers--;
+                }
                 for(int j=i; j<size; j++){
                     Player[j]=Player[j+1];
                 }
@@ -294,4 +389,5 @@ class MainGame{
             }
         }
     }
+
 }
