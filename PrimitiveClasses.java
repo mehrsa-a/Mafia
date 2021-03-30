@@ -20,8 +20,9 @@ class Players{
     Roles role;
     int DayVoted=0;
     boolean silenced=false;
-    Players[] information= new Players[100];
-    int lives=2;
+    boolean dead=false;
+
+    int NightVoted=0;
 
     //constructor
     public Players(String name, Roles role){
