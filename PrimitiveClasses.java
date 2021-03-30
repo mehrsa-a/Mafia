@@ -21,7 +21,7 @@ class Players{
     int DayVoted=0;
     boolean silenced=false;
     boolean dead=false;
-
+    boolean called=false;
     int NightVoted=0;
 
     //constructor

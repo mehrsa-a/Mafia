@@ -17,8 +17,7 @@ class Mafias extends Players{
     public void NightVote(String name) {
         for(int i=0; i<100; i++){
             if(MainGame.Player[i].name==name){
-                NightVoting temp= (NightVoting) MainGame.Player[i];
-                temp.NightVoted++;
+                MainGame.Player[i].NightVoted++;
                 break;
             }
         }
@@ -26,8 +25,6 @@ class Mafias extends Players{
 }
 
 class Silencer extends Mafias{
-
-    boolean called=false;
 
     public Silencer(String name, Roles role) {
         super(name, role);

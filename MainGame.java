@@ -76,6 +76,11 @@ class MainGame{
 
                         endDay();
 
+                        //reset number of player's vote
+                        for(int i=0; i<size; i++){
+                            Player[i].DayVoted=0;
+                        }
+
                         System.out.println("Night "+night);
                         //list of players that shoud wake up at night
                         for(int i=0; i<size; i++){
@@ -91,64 +96,9 @@ class MainGame{
                         counter++;
                         night++;
 
-                        Players max=Player[0];
-                        boolean killedInThisDay=false;
-                        for(int i=0; i<size; i++){
+                        System.out.println("Day "+day);
 
-                            //silenced
-                            if(Player[i].silenced){
-                                System.out.println("silenced "+Player[i].name);
-                            }
-
-                            //killed
-                            for(int j=0; j<size; j++){
-                                if((Player[i]).NightVoted==(Player[j]).NightVoted){
-                                    if(saved==Player[i]){
-                                        kill(Player[j]);
-                                        System.out.println("mafia tried to kill"+Player[j].name);
-                                        System.out.println(Player[j].name+"was killed");
-                                        killedInThisDay=true;
-                                    }
-                                    else if(saved==Player[j]){
-                                        kill(Player[i]);
-                                        System.out.println("mafia tried to kill"+Player[j].name);
-                                        System.out.println(Player[j].name+"was killed");
-                                        killedInThisDay=true;
-                                    }
-                                    else{
-                                        System.out.println("nobody died");
-                                        killedInThisDay=true;
-                                    }
-                                    break;
-                                }
-                                else if(((Villagers)Player[i]).NightVoted>=((Villagers)Player[j]).NightVoted){
-                                    max=Player[i];
-                                }
-                            }
-
-                        }
-
-                        if(!killedInThisDay && saved!=max){
-                            if(max.role==Roles.bulletproof){
-                                if(max.dead){
-                                    kill(max);
-                                    System.out.println("mafia tried to kill"+max.name);
-                                    System.out.println(max.name+"was killed");
-                                }
-                                else{
-                                    for(int i=0; i<size; i++){
-                                        if(Player[i]==max){
-                                            Player[i].dead=true;
-                                        }
-                                    }
-                                }
-                            }
-                            else{
-                                kill(max);
-                                System.out.println("mafia tried to kill"+max.name);
-                                System.out.println(max.name+"was killed");
-                            }
-                        }
+                        endNight();
 
                         if(Villagers.numberOfVillagers<=Mafias.numberOfMafias){
                             System.out.println("Mafia won!");
@@ -159,8 +109,13 @@ class MainGame{
                             ans="Villagers won!";
                         }
 
-                        System.out.println("Day "+day);
-                    } //it has problem
+                        //reset
+                        for(int i=0; i<size; i++){
+                            Player[i].NightVoted=0;
+                            Player[i].silenced=false;
+                            Player[i].called=false;
+                        }
+                    }
 
                     else if(act.equals("get_game_state")){
                         System.out.println("Mafia = "+Mafias.numberOfMafias+"\nVillager = "+Villagers.numberOfVillagers);
@@ -172,65 +127,8 @@ class MainGame{
                         }
 
                         else{
-
-                            String voted=scanner.next();
-
-                            for(int i=0; i<size; i++){
-
-                                if(Player[i].name.equals(act)){
-
-                                    //mafia wake up
-                                    if(Player[i].role==Roles.godfather||Player[i].role==Roles.mafia){
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                (Player[j]).NightVoted++;
-                                            }
-                                        }
-                                    }
-
-                                    //silencer wake up
-                                    if(Player[i].role==Roles.silencer){
-                                        Silencer temp=(Silencer) Player[i];
-                                        if(!temp.called){
-                                            for(int j=0; j<size; j++){
-                                                if(Player[j].name.equals(voted)){
-                                                    Player[j].silenced=true;
-                                                }
-                                            }
-                                            ((Silencer)Player[i]).called=true;
-                                        }
-                                        else{
-                                            for(int j=0; j<size; j++){
-                                                if(Player[j].name.equals(voted)){
-                                                    (Player[j]).NightVoted++;
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    //doctor wake up
-                                    if(Player[i].role==Roles.doctor){
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                saved=((Doctor)Player[i]).choose(Player[j].name);
-                                            }
-                                        }
-                                    }
-
-                                    //detective wake up
-                                    if(Player[i].role==Roles.detective){
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                ((Detective)Player[i]).asking(Player[j].name);
-                                            }
-                                        }
-                                    }
-
-                                }
-
-                            }
-
-                        } //it has problem
+                            nightVoting(act);
+                        }
                     }
 
 
@@ -421,6 +319,181 @@ class MainGame{
 
             }
 
+        }
+    }
+
+    public static void nightVoting(String act){
+        String voted=scanner.next();
+
+        for(int i=0; i<size; i++){
+
+            if(Player[i].name.equals(act)){
+
+                Players votedByMafia= new Players(" ", Roles.unknown);
+                Players votedByGodfather= new Players(" ", Roles.unknown);
+                Players votedBySilencer= new Players(" ", Roles.unknown);
+                //mafia wake up
+                if(Player[i].role==Roles.godfather||Player[i].role==Roles.mafia){
+                    if(!Player[i].called){
+                        for(int j=0; j<size; j++){
+                            if(Player[j].name.equals(voted)){
+                                Player[j].NightVoted++;
+                                if(Player[i].role==Roles.mafia){
+                                    votedByMafia=Player[j];
+                                }
+                                else{
+                                    votedByGodfather=Player[j];
+                                }
+                            }
+                        }
+                        Player[i].called=true;
+                    }
+                    else{
+                        if(Player[i].role==Roles.mafia){
+                            for(int j=0; j<size; j++){
+                                if(Player[j]==votedByMafia){
+                                    Player[j].NightVoted--;
+                                }
+                            }
+                            for(int j=0; j<size; j++){
+                                if(Player[j].name.equals(voted)){
+                                    Player[j].NightVoted++;
+                                    votedByMafia=Player[j];
+                                }
+                            }
+                        }
+                        else{
+                            for(int j=0; j<size; j++){
+                                if(Player[j]==votedByGodfather){
+                                    Player[j].NightVoted--;
+                                }
+                            }
+                            for(int j=0; j<size; j++){
+                                if(Player[j].name.equals(voted)){
+                                    Player[j].NightVoted++;
+                                    votedByGodfather=Player[j];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //silencer wake up
+                if(Player[i].role==Roles.silencer){
+                    if(!Player[i].called){
+                        for(int j=0; j<size; j++){
+                            if(Player[j].name.equals(voted)){
+                                Player[j].silenced=true;
+                            }
+                        }
+                        Player[i].called=true;
+                    }
+                    else{
+                        if(votedBySilencer.role==Roles.unknown){
+                            for(int j=0; j<size; j++){
+                                if(Player[j].name.equals(voted)){
+                                    Player[j].NightVoted++;
+                                    votedBySilencer=Player[j];
+                                }
+                            }
+                        }
+                        else{
+                            for(int j=0; j<size; j++){
+                                if(Player[j]==votedBySilencer){
+                                    Player[j].NightVoted--;
+                                }
+                            }
+                            for(int j=0; j<size; j++){
+                                if(Player[j].name.equals(voted)){
+                                    Player[j].NightVoted++;
+                                    votedBySilencer=Player[j];
+                                }
+                            }
+                        }
+                    }
+                }
+
+                //doctor wake up
+                if(Player[i].role==Roles.doctor){
+                    for(int j=0; j<size; j++){
+                        if(Player[j].name.equals(voted)){
+                            Doctor temp=(Doctor)Player[i];
+                            saved=temp.choose(Player[j].name);
+                        }
+                    }
+                }
+
+                //detective wake up
+                if(Player[i].role==Roles.detective){
+                    for(int j=0; j<size; j++){
+                        if(Player[j].name.equals(voted)){
+                            ((Detective)Player[i]).asking(Player[j].name);
+                        }
+                    }
+                }
+
+            }
+
+        }
+    }
+
+    public static void endNight(){
+        Players max=Player[0];
+        //silenced
+        for(int i=0; i<size; i++){
+            if(Player[i].silenced){
+                System.out.println("silenced "+Player[i].name);
+            }
+        }
+        //find max night voted player
+        for(int i=0; i<size; i++){
+            if(Player[i].NightVoted>=max.NightVoted){
+                max=Player[i];
+            }
+        }
+        //find number of players that have max night voted
+        int numberOfMax=0;
+        for(int i=0; i<size; i++){
+            if(Player[i].NightVoted==max.NightVoted){
+                numberOfMax++;
+            }
+        }
+        //killed
+        if(numberOfMax==1){
+            if(saved!=max){
+                kill(max);
+                System.out.println("mafia tried to kill"+max.name);
+                System.out.println(max.name+"was killed");
+            }
+            else{
+                System.out.println("nobody died");
+            }
+        }
+        else if(numberOfMax==2){
+            Players[] maxes=new Players[2];
+            int n=0;
+            for(int i=0; i<size; i++){
+                if(Player[i].NightVoted==max.NightVoted){
+                    maxes[n]=Player[i];
+                    n++;
+                }
+            }
+            if(maxes[0]==saved){
+                kill(maxes[1]);
+                System.out.println("mafia tried to kill"+maxes[1].name);
+                System.out.println(maxes[1].name+"was killed");
+            }
+            else if(maxes[1]==saved){
+                kill(maxes[0]);
+                System.out.println("mafia tried to kill"+maxes[0].name);
+                System.out.println(maxes[0].name+"was killed");
+            }
+            else{
+                System.out.println("nobody died");
+            }
+        }
+        else{
+            System.out.println("nobody died");
         }
     }
 
