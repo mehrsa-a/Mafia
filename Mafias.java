@@ -11,7 +11,7 @@ public class Mafias extends Players{
     //when each mafia vote someone
     public void NightVote(String name) {
         for(int i=0; i<100; i++){
-            if(MainGame.Player[i].name==name){
+            if(MainGame.Player[i].name.equals(name)){
                 MainGame.Player[i].NightVoted++;
                 break;
             }
