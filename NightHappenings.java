@@ -450,6 +450,7 @@ public class NightHappenings {
             MainGame.votedByMafia= new Players(" ", Roles.unknown);
             MainGame.votedByGodfather= new Players(" ", Roles.unknown);
             MainGame.votedBySilencer= new Players(" ", Roles.unknown);
+            MainGame.array=null;
         }
     }
     //if mafia kill someone that they want to kill at past nights but he didn't voted enough, we use this method(it's because of informer)
