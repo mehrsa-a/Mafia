@@ -1,5 +1,5 @@
 public class Players{
-    String name="";
+    String name;
     Roles role;
     int DayVoted=0;
     boolean silenced=false;

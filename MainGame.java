@@ -1,26 +1,37 @@
 import java.util.Scanner;
 public class MainGame{
     //public vars
+    //players of the game
     public static Players[] Player=new Players[100];
     public static int size=0;
+    //players that we should start with them
     static String[] NameOfPlayers=new String[100];
     static int sizeOf=0;
+    //roles array
     static Roles[] roles={ Roles.Joker, Roles.mafia, Roles.godfather, Roles.silencer, Roles.bomb, Roles.villager, Roles.detective, Roles.bulletproof, Roles.doctor, Roles.informer, Roles.freemason, Roles.unknown};
     //for inner while condition
     static String ans="";
     //the one who doctor save at night
     static Players saved=new Players(" ", Roles.mafia);
+    //array for players who killed
     static Players[] dead=new Players[100];
     static  int sizeOfDead=0;
+    //array for players that mafia want to kill but they don't voted enough(because of informer)
     static Players[] tryToKill=new Players[100];
     static int sizeOfTry=0;
+    //check create game situation
     static boolean gameCreating=false;
+    //check freemason live
     static Players freemasonKilled=null;
+    //check detective asking situation
     static boolean ask=false;
+    //the one who mafias vote at night(mafias can take their vote back from them)
     static Players votedByMafia= new Players(" ", Roles.unknown);
     static Players votedByGodfather= new Players(" ", Roles.unknown);
     static Players votedBySilencer= new Players(" ", Roles.unknown);
+    //array for swap characters
     static String[] array;
+    //number of day and night and check time of the game
     static int day=1, night=1, counter=0;
     static Scanner scanner=new Scanner(System.in);
     public static void main(String[] args){
@@ -43,7 +54,7 @@ public class MainGame{
                         showPlayers();
                         System.out.println(ColorPrint.ANSI_RED + "\n" + "Ready?\nSet!\n\nGO!!!" + ColorPrint.ANSI_RESET);
                         System.out.println(ColorPrint.ANSI_RED + "Day " + day + ColorPrint.ANSI_RESET);
-                        dayGuide();
+                        NightHappenings.dayGuide();
                         do {
                             String act = scanner.next();
                             switch (act) {
@@ -52,10 +63,10 @@ public class MainGame{
                                     System.out.println("enter your action:");
                                     break;
                                 case "end_vote":
-                                    endDay();
+                                    DayHappenings.endDay();
                                     break;
                                 case "end_night":
-                                    endNight();
+                                    NightHappenings.endNight();
                                     break;
                                 case "get_game_state":
                                     System.out.println("Mafia = " + Mafias.numberOfMafias + "\nVillager = " + Villagers.numberOfVillagers);
@@ -79,9 +90,9 @@ public class MainGame{
                                     break;
                                 default:
                                     if (counter % 2 == 0) {
-                                        dayVoting(act);
+                                        DayHappenings.dayVoting(act);
                                     } else {
-                                        nightVoting(act);
+                                        NightHappenings.nightVoting(act);
                                     }
                                     System.out.println("enter your action:");
                                     break;
@@ -98,28 +109,41 @@ public class MainGame{
         }
         System.out.println("-");
     }
+    //create game part methods
     public static void createGuide(){
         System.out.println(ColorPrint.ANSI_RED+"Hey =)\nthis is a MAFIA version that helps god of game to handle the game\n"+ColorPrint.ANSI_RESET);
         System.out.println("to build a new game please type "+ColorPrint.ANSI_BLUE+"create_game "+ColorPrint.ANSI_RESET+"and type players name after that");
         line();
         System.out.println("enter your action:");
     }
+    //name of players that we should start game with all of them
+    public static String[] cut(String input){
+        String[] commands;
+        commands = input.split(" ");
+        return commands;
+    }
+    public static void createGame(){
+        String players= scanner.nextLine();
+        NameOfPlayers=cut(players);
+        for(int i=0; i<players.lastIndexOf(" "); i++){
+            if(players.charAt(i)==' '){
+                sizeOf++;
+            }
+        }
+        sizeOf++;
+        gameCreating=true;
+        System.out.println("now type "+ColorPrint.ANSI_BLUE+"assign_role "+ColorPrint.ANSI_RESET+"and type mentioned player's name and assign a role to it");
+        System.out.println("when assigning role to all players done, type "+ColorPrint.ANSI_BLUE+"start_game "+ColorPrint.ANSI_RESET+"to start the game");
+        line();
+        introduceRoles();
+        System.out.println("enter your action:");
+    }
+    //this is line for roles features table
     public static void table(){
         for(int i=0; i<110; i++){
             System.out.print("-");
         }
         System.out.print("\n");
-    }
-    public static void playerTable(){
-        for(int i=0; i<33; i++){
-            System.out.print("-");
-        }
-        System.out.print("\n");
-    }
-    public static String[] cut(String input){
-        String[] commands;
-        commands = input.split(" ");
-        return commands;
     }
     public static void introduceRoles(){
         System.out.println("here is available roles:");
@@ -148,28 +172,14 @@ public class MainGame{
         table();
         System.out.println(ColorPrint.ANSI_RED+"          !!!PAY ATTENTION!!!"+ColorPrint.ANSI_RESET+"\nyou can have"+ColorPrint.ANSI_RED+" JUST ONE Joker"+ColorPrint.ANSI_RESET+" in whole game");
     }
-    public static void createGame(){
-        String players= scanner.nextLine();
-        NameOfPlayers=cut(players);
-        for(int i=0; i<players.lastIndexOf(" "); i++){
-            if(players.charAt(i)==' '){
-                sizeOf++;
-            }
-        }
-        sizeOf++;
-        gameCreating=true;
-        System.out.println("now type "+ColorPrint.ANSI_BLUE+"assign_role "+ColorPrint.ANSI_RESET+"and type mentioned player's name and assign a role to it");
-        System.out.println("when assigning role to all players done, type "+ColorPrint.ANSI_BLUE+"start_game "+ColorPrint.ANSI_RESET+"to start the game");
-        line();
-        introduceRoles();
-        System.out.println("enter your action:");
-    }
+    //assign role part method
     public static void assignRole(){
         String name=scanner.next();
         String role=scanner.next();
         if(!gameCreating){
             System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"no game created"+ColorPrint.ANSI_RESET);
         }
+        //recognize players
         else{
             String tempName=null;
             for(int i=0; i<=sizeOf; i++){
@@ -181,6 +191,7 @@ public class MainGame{
             if(tempName==null){
                 System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user not found"+ColorPrint.ANSI_RESET);
             }
+            //recognize roles
             else{
                 Roles tempRole=null;
                 for(int i=0; i<12; i++){
@@ -192,6 +203,7 @@ public class MainGame{
                 if(tempRole==null){
                     System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"role not found"+ColorPrint.ANSI_RESET);
                 }
+                //assign roles
                 else{
                     Roles temp=Roles.unknown;
                     for(int j=0; j<12; j++){
@@ -243,6 +255,15 @@ public class MainGame{
         }
         System.out.println("enter your action:");
     }
+    //start game part methods
+    //this is line for players table
+    public static void playerTable(){
+        for(int i=0; i<33; i++){
+            System.out.print("-");
+        }
+        System.out.print("\n");
+    }
+    //show players name and role
     public static void showPlayers(){
         playerTable();
         for(int i=0; i<size; i++){
@@ -285,69 +306,7 @@ public class MainGame{
             playerTable();
         }
     }
-    public static void dayGuide(){
-        line();
-        System.out.println("at start of the day players should vote to kill someone");
-        System.out.println("for this action enter name of voter player and after that the voted one with one space");
-        System.out.println("after voting type "+ColorPrint.ANSI_BLUE+"end_vote "+ColorPrint.ANSI_RESET+"and night will start");
-        System.out.println("you can get number of alive players with "+ColorPrint.ANSI_BLUE+"get_game_state"+ColorPrint.ANSI_RESET);
-        System.out.println("you can get name of alive players with "+ColorPrint.ANSI_BLUE+"list_of_alive_players"+ColorPrint.ANSI_RESET);
-        line();
-        System.out.println("enter your action:");
-    }
-    public static void dayVoting(String act){
-        String voted=scanner.next();
-        String tempVoter=null;
-        String tempVoted=null;
-        for(int i=0; i<sizeOfDead; i++){
-            if(dead[i].name.equals(act)){
-                tempVoter=dead[i].name;
-            }
-            if(dead[i].name.equals(voted)){
-                tempVoted=dead[i].name;
-            }
-        }
-        if(tempVoter!=null){
-            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"voter already dead"+ColorPrint.ANSI_RESET);
-        }
-        else if(tempVoted!=null){
-            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"voted already dead"+ColorPrint.ANSI_RESET);
-        }
-        else{
-            for(int i=0; i<size; i++){
-                if(Player[i].name.equals(act)){
-                    tempVoter=Player[i].name;
-                }
-                if(Player[i].name.equals(voted)){
-                    tempVoted=Player[i].name;
-                }
-            }
-            if(tempVoter==null){
-                System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user not found"+ColorPrint.ANSI_RESET);
-            }
-            else if(tempVoted==null){
-                System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user not found"+ColorPrint.ANSI_RESET);
-            }
-            else{
-                for(int i=0; i<size; i++){
-                    if(Player[i].name.equals(act)){
-                        if(Player[i].silenced){
-                            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"voter is silenced"+ColorPrint.ANSI_RESET);
-                        }
-                        else{
-                            for(int j=0; j<size; j++){
-                                if(Player[j].name.equals(voted)){
-                                    Player[j].DayVoted++;
-                                    break;
-                                }
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
+    //kill someone
     public static void kill(Players input){
         for(int i=0; i<size; i++){
             if(input==Player[i]){
@@ -365,569 +324,6 @@ public class MainGame{
                 }
                 size--;
                 Player[size]=null;
-            }
-        }
-    }
-    public static void endDay(){
-        counter++;
-        day++;
-        System.out.println(ColorPrint.ANSI_RED+"Night "+night+ColorPrint.ANSI_RESET);
-        int max=Player[0].DayVoted;
-        for(int i=0; i<size; i++){
-            for(int j=0; j<size; j++){
-                if(Player[j].DayVoted>Player[i].DayVoted){
-                    max=Player[j].DayVoted;
-                }
-            }
-        }
-        int c=0;
-        for(int i=0; i<size; i++){
-            if(Player[i].DayVoted==max){
-                c++;
-            }
-        }
-        if(c>1){
-            System.out.println(ColorPrint.ANSI_YELLOW+"nobody died"+ColorPrint.ANSI_RESET);
-            nightGuide();
-        }
-        else{
-            for(int i=0; i<size; i++){
-                if(max==Player[i].DayVoted){
-                    if(Player[i].role==Roles.Joker){
-                        System.out.println(ColorPrint.ANSI_PURPLE+"Joker won!"+ColorPrint.ANSI_RESET);
-                        ans="Joker won!";
-                    }
-                    else{
-                        System.out.println(ColorPrint.ANSI_YELLOW+Player[i].name+" died"+ColorPrint.ANSI_RESET);
-                        System.out.println(ColorPrint.ANSI_YELLOW+Player[i].name+" was "+Player[i].role+ColorPrint.ANSI_RESET);
-                        if(Player[i].role==Roles.bomb){
-                            System.out.println("enter the player bomb wants to kill:");
-                            String kill=scanner.next();
-                            for(int j=0; j<size; j++){
-                                if(Player[j].name.equals(kill)){
-                                    System.out.println(ColorPrint.ANSI_YELLOW+"bomb killed "+Player[j].name+ColorPrint.ANSI_RESET);
-                                    System.out.println(ColorPrint.ANSI_YELLOW+Player[j].name+" died"+ColorPrint.ANSI_RESET);
-                                    ((Bomb)Player[i]).action(kill);
-                                    break;
-                                }
-                            }
-                        }
-                        kill(Player[i]);
-                        if(Villagers.numberOfVillagers<=Mafias.numberOfMafias){
-                            System.out.println(ColorPrint.ANSI_PURPLE+"Mafia won!"+ColorPrint.ANSI_RESET);
-                            ans="Mafia won!";
-                        }
-                        else if(Mafias.numberOfMafias==0){
-                            System.out.println(ColorPrint.ANSI_PURPLE+"Villagers won!"+ColorPrint.ANSI_RESET);
-                            ans="Villagers won!";
-                        }
-                        else{
-                            nightGuide();
-                        }
-                    }
-                }
-            }
-        }
-        dayReset();
-    }
-    public static void dayReset(){
-        for(int i=0; i<size; i++){
-            Player[i].DayVoted=0;
-            Player[i].silenced=false;
-        }
-    }
-    public static void nightWake(){
-        playerTable();
-        for(int i=0; i<size; i++){
-            if(Player[i].role==Roles.mafia||Player[i].role==Roles.godfather||Player[i].role==Roles.silencer||Player[i].role==Roles.bomb||Player[i].role==Roles.detective||Player[i].role==Roles.doctor||Player[i].role==Roles.freemason){
-                int backTemp, frontTemp;
-                int nameLength=Player[i].name.length();
-                int roleLength=Player[i].role.toString().length();
-                System.out.print("| ");
-                if(nameLength%2==0){
-                    backTemp=(15-nameLength)/2;
-                    frontTemp=(15-nameLength)/2+1;
-                }
-                else{
-                    backTemp=(15-nameLength)/2;
-                    frontTemp=(15-nameLength)/2;
-                }
-                for(int j=0; j<backTemp; j++){
-                    System.out.print(" ");
-                }
-                System.out.print(ColorPrint.ANSI_BLUE+Player[i].name+ColorPrint.ANSI_RESET);
-                for(int j=0; j<frontTemp; j++){
-                    System.out.print(" ");
-                }
-                System.out.print(" | ");
-                if(roleLength%2==0){
-                    backTemp=(11-roleLength)/2;
-                    frontTemp=(11-roleLength)/2+1;
-                }
-                else{
-                    backTemp=(11-roleLength)/2;
-                    frontTemp=(11-roleLength)/2;
-                }
-                for(int j=0; j<backTemp; j++){
-                    System.out.print(" ");
-                }
-                System.out.print(ColorPrint.ANSI_BLUE+Player[i].role.toString()+ColorPrint.ANSI_RESET);
-                for(int j=0; j<frontTemp; j++){
-                    System.out.print(" ");
-                }
-                System.out.println(" |");
-                playerTable();
-            }
-        }
-    }
-    public static void nightGuide(){
-        line();
-        System.out.println("at start of the night mafias should vote to kill someone");
-        System.out.println("silencer should silence someone");
-        System.out.println("doctor should save someone");
-        System.out.println("detective should ask for someone role");
-        System.out.println("=> for this actions enter name of voter player and after that the voted one with one space");
-        System.out.println("after voting type "+ColorPrint.ANSI_BLUE+"end_night "+ColorPrint.ANSI_RESET+"and night will start");
-        System.out.println("you can get number of alive players with "+ColorPrint.ANSI_BLUE+"get_game_state"+ColorPrint.ANSI_RESET);
-        System.out.println("you can get name of alive players with "+ColorPrint.ANSI_BLUE+"list_of_alive_players"+ColorPrint.ANSI_RESET);
-        System.out.println("here is the list of players that should wake at night:");
-        //list of players that should wake up at night
-        nightWake();
-        System.out.println("enter your action:");
-    }
-    public static void nightVoting(String act){
-        String voted=scanner.next();
-        String tempVoter=null;
-        String tempVoted=null;
-        for(int i=0; i<sizeOfDead; i++){
-            if(dead[i].name.equals(act)){
-                tempVoter=dead[i].name;
-            }
-            if(dead[i].name.equals(voted)){
-                tempVoted=dead[i].name;
-            }
-        }
-        if(tempVoter!=null){
-            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user is dead"+ColorPrint.ANSI_RESET);
-        }
-        else if(tempVoted!=null){
-            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"voted already dead"+ColorPrint.ANSI_RESET);
-        }
-        else{
-            for(int i=0; i<size; i++){
-                if(Player[i].name.equals(act)){
-                    tempVoter=Player[i].name;
-                }
-                if(Player[i].name.equals(voted)){
-                    tempVoted=Player[i].name;
-                }
-            }
-            if(tempVoter==null){
-                System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user not joined"+ColorPrint.ANSI_RESET);
-            }
-            else if(tempVoted==null){
-                System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user not joined"+ColorPrint.ANSI_RESET);
-            }
-            else{
-                boolean keepGoing=false;
-                for(int i=0; i<size; i++){
-                    if(Player[i].name.equals(act)){
-                        if(Player[i].role!=Roles.mafia&&Player[i].role!=Roles.godfather&&Player[i].role!=Roles.silencer&&Player[i].role!=Roles.bomb&&Player[i].role!=Roles.detective&&Player[i].role!=Roles.doctor&&Player[i].role!=Roles.freemason){
-                            System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user can not wake up during night"+ColorPrint.ANSI_RESET);
-                            keepGoing=true;
-                        }
-                    }
-                }
-                if(!keepGoing){
-                    for(int i=0; i<size; i++){
-                        if(Player[i].name.equals(act)){
-                            //mafia wake up
-                            if(Player[i].role==Roles.godfather||Player[i].role==Roles.mafia||Player[i].role==Roles.bomb){
-                                if(!Player[i].called){
-                                    for(int j=0; j<size; j++){
-                                        if(Player[j].name.equals(voted)){
-                                            Player[j].NightVoted++;
-                                            if(Player[i].role==Roles.mafia){
-                                                votedByMafia=Player[j];
-                                            }
-                                            else{
-                                                votedByGodfather=Player[j];
-                                            }
-                                            tryToKill[sizeOfTry]=Player[i];
-                                            sizeOfTry++;
-                                        }
-                                    }
-                                    Player[i].called=true;
-                                }
-                                else{
-                                    if(Player[i].role==Roles.mafia){
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j]==votedByMafia){
-                                                Player[j].NightVoted--;
-                                            }
-                                        }
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                Player[j].NightVoted++;
-                                                for(int k=0; k<sizeOfTry; k++){
-                                                    if(tryToKill[k]==votedByMafia){
-                                                        tryToKill[k]=Player[j];
-                                                    }
-                                                }
-                                                votedByMafia=Player[j];
-                                            }
-                                        }
-                                    }
-                                    else{
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j]==votedByGodfather){
-                                                Player[j].NightVoted--;
-                                            }
-                                        }
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                Player[j].NightVoted++;
-                                                for(int k=0; k<sizeOfTry; k++){
-                                                    if(tryToKill[k]==votedByGodfather){
-                                                        tryToKill[k]=Player[j];
-                                                    }
-                                                }
-                                                votedByGodfather=Player[j];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            //silencer wake up
-                            if(Player[i].role==Roles.silencer){
-                                if(!Player[i].called){
-                                    for(int j=0; j<size; j++){
-                                        if(Player[j].name.equals(voted)){
-                                            Player[j].silenced=true;
-                                        }
-                                    }
-                                    Player[i].called=true;
-                                }
-                                else{
-                                    if(votedBySilencer.role==Roles.unknown){
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                Player[j].NightVoted++;
-                                                votedBySilencer=Player[j];
-                                                tryToKill[sizeOfTry]=Player[i];
-                                                sizeOfTry++;
-                                            }
-                                        }
-                                    }
-                                    else{
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j]==votedBySilencer){
-                                                Player[j].NightVoted--;
-                                            }
-                                        }
-                                        for(int j=0; j<size; j++){
-                                            if(Player[j].name.equals(voted)){
-                                                Player[j].NightVoted++;
-                                                for(int k=0; k<sizeOfTry; k++){
-                                                    if(tryToKill[k]==votedBySilencer){
-                                                        tryToKill[k]=Player[j];
-                                                    }
-                                                }
-                                                votedBySilencer=Player[j];
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            //doctor wake up
-                            if(Player[i].role==Roles.doctor){
-                                Doctor temp=(Doctor)Player[i];
-                                temp.action(voted);
-                                saved=temp.choose(voted);
-                            }
-                            //detective wake up
-                            if(Player[i].role==Roles.detective){
-                                if(!ask){
-                                    ask=true;
-                                    ((Detective)Player[i]).action(voted);
-                                }
-                                else{
-                                    System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"detective has already asked"+ColorPrint.ANSI_RESET);
-                                }
-                            }
-                            //freemason wakeup
-                            if(Player[i].role==Roles.freemason){
-                                for(int j=0; j<size; j++){
-                                    if(Player[j].name.equals(voted)){
-                                        if(Player[j].role==Roles.godfather||Player[j].role==Roles.mafia||Player[j].role==Roles.bomb||Player[j].role==Roles.silencer){
-                                            freemasonKilled=Player[i];
-                                            kill(Player[i]);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    public static void bulletproofDead(Players max){
-        if(max.dead){
-            kill(max);
-            System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+max.name+ColorPrint.ANSI_RESET);
-            System.out.println(ColorPrint.ANSI_YELLOW+max.name+" was killed"+ColorPrint.ANSI_RESET);
-        }
-        else{
-            for(int j=0; j<size; j++){
-                if(Player[j]==max){
-                    Player[j].dead=true;
-                    break;
-                }
-            }
-            System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+max.name+ColorPrint.ANSI_RESET);
-            System.out.println(ColorPrint.ANSI_YELLOW+"nobody died"+ColorPrint.ANSI_RESET);
-        }
-    }
-    public static void swap(){
-        while(array==null){
-            System.out.println("swap two character with "+ColorPrint.ANSI_BLUE+"swap_character"+ColorPrint.ANSI_RESET);
-            scanner.next();
-            String p1=scanner.next();
-            String p2=scanner.next();
-            if(freemasonKilled!=null){
-                if(p1.equals(freemasonKilled.name) || p2.equals(freemasonKilled.name)){
-                    System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user was killed last night"+ColorPrint.ANSI_RESET);
-                }
-            }
-            else if(p1.equals(findKilled().name)||p2.equals(findKilled().name)){
-                System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user was killed last night"+ColorPrint.ANSI_RESET);
-            }
-            else{
-                String tempP1=null;
-                String tempP2=null;
-                for(int i=0; i<sizeOfDead; i++){
-                    if(dead[i].name.equals(p1)){
-                        tempP1=dead[i].name;
-                    }
-                    if(dead[i].name.equals(p2)){
-                        tempP2=dead[i].name;
-                    }
-                }
-                if(tempP1!=null||tempP2!=null){
-                    System.out.println(ColorPrint.ANSI_WHITE_BACKGROUND+ColorPrint.ANSI_BLACK+"user is dead"+ColorPrint.ANSI_RESET);
-                }
-                else{
-                    Outer: for(int i=0; i<size; i++){
-                        if(Player[i].name.equals(p1)){
-                            String temp=Player[i].name;
-                            for(int j=0; j<size; j++){
-                                if(Player[j].name.equals(p2)){
-                                    Player[i].name=Player[j].name;
-                                    Player[j].name=temp;
-                                    break Outer;
-                                }
-                            }
-                        }
-                    }
-                    array= new String[]{p1, p2};
-                }
-            }
-        }
-    }
-    public static Players findKilled(){
-        Players max=Player[0];
-        for(int i=0; i<size; i++){
-            if(Player[i].NightVoted>=max.NightVoted){
-                max=Player[i];
-            }
-        }
-        //find number of players that have max night voted
-        int numberOfMax=0;
-        for(int i=0; i<size; i++){
-            if(Player[i].NightVoted==max.NightVoted){
-                numberOfMax++;
-            }
-        }
-        //killed
-        if(numberOfMax==1){
-            if(max.role==Roles.bulletproof){
-                bulletproofDead(max);
-            }
-            else if(saved!=max){
-                return max;
-            }
-            else{
-                return new Players(" ", Roles.unknown);
-            }
-        }
-        else if(numberOfMax==2) {
-            Players[] maxes = new Players[2];
-            int n = 0;
-            for (int i = 0; i < size; i++) {
-                if (Player[i].NightVoted == max.NightVoted) {
-                    maxes[n] = Player[i];
-                    n++;
-                }
-            }
-            if (maxes[0] == saved) {
-                if (maxes[1].role != Roles.bulletproof) {
-                    return maxes[1];
-                }
-            } else if (maxes[1] == saved) {
-                if (maxes[0].role != Roles.bulletproof) {
-                    return maxes[0];
-                }
-            }
-        }
-        else if(freemasonKilled!=null){
-            return freemasonKilled;
-        }
-        return new Players(" ", Roles.unknown);
-    }
-    public static void endNight(){
-        swap();
-        counter++;
-        night++;
-        System.out.println(ColorPrint.ANSI_RED+"Day "+day+ColorPrint.ANSI_RESET);
-        if(freemasonKilled!=null){
-            System.out.println(ColorPrint.ANSI_YELLOW+freemasonKilled.name+" as freemason was wake a mafia up"+ColorPrint.ANSI_RESET);
-            System.out.println(ColorPrint.ANSI_YELLOW+freemasonKilled.name+" was killed"+ColorPrint.ANSI_RESET);
-            deleteKill(freemasonKilled);
-        }
-        //find max night voted player
-        Players max=Player[0];
-        for(int i=0; i<size; i++){
-            if(Player[i].NightVoted>=max.NightVoted){
-                max=Player[i];
-            }
-        }
-        //find number of players that have max night voted
-        int numberOfMax=0;
-        for(int i=0; i<size; i++){
-            if(Player[i].NightVoted==max.NightVoted){
-                numberOfMax++;
-            }
-        }
-        //killed
-        if(numberOfMax==1){
-            if(max.role==Roles.bulletproof){
-                bulletproofDead(max);
-            }
-            else if(saved!=max){
-                kill(max);
-                deleteKill(max);
-                System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+max.name+ColorPrint.ANSI_RESET);
-                System.out.println(ColorPrint.ANSI_YELLOW+max.name+" was killed"+ColorPrint.ANSI_RESET);
-                System.out.println(ColorPrint.ANSI_YELLOW+max.name+" was "+max.role+ColorPrint.ANSI_RESET);
-                if(max.role==Roles.informer){
-                    Informer temp=(Informer)max;
-                    System.out.println(ColorPrint.ANSI_YELLOW+temp.action()+ColorPrint.ANSI_RESET);
-                }
-            }
-            else{
-                System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+max.name+ColorPrint.ANSI_RESET);
-                if(freemasonKilled==null){
-                    System.out.println(ColorPrint.ANSI_YELLOW+"nobody died"+ColorPrint.ANSI_RESET);
-                }
-            }
-        }
-        else if(numberOfMax==2){
-            Players[] maxes=new Players[2];
-            int n=0;
-            for(int i=0; i<size; i++){
-                if(Player[i].NightVoted==max.NightVoted){
-                    maxes[n]=Player[i];
-                    n++;
-                }
-            }
-            if(maxes[0]==saved){
-                if(maxes[1].role==Roles.bulletproof){
-                    bulletproofDead(maxes[1]);
-                }
-                else{
-                    kill(maxes[1]);
-                    deleteKill(maxes[1]);
-                    System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+maxes[1].name+ColorPrint.ANSI_RESET);
-                    System.out.println(ColorPrint.ANSI_YELLOW+maxes[1].name+" was killed"+ColorPrint.ANSI_RESET);
-                    System.out.println(ColorPrint.ANSI_YELLOW+maxes[1].name+" was "+maxes[1].role+ColorPrint.ANSI_RESET);
-                    if(maxes[1].role==Roles.informer){
-                        Informer temp=(Informer)maxes[1];
-                        System.out.println(ColorPrint.ANSI_YELLOW+temp.action()+ColorPrint.ANSI_RESET);
-                    }
-                }
-            }
-            else if(maxes[1]==saved){
-                if(maxes[0].role==Roles.bulletproof){
-                    bulletproofDead(maxes[0]);
-                }
-                else{
-                    kill(maxes[0]);
-                    deleteKill(maxes[0]);
-                    System.out.println(ColorPrint.ANSI_YELLOW+"mafia tried to kill "+maxes[0].name+ColorPrint.ANSI_RESET);
-                    System.out.println(ColorPrint.ANSI_YELLOW+maxes[0].name+" was killed"+ColorPrint.ANSI_RESET);
-                    System.out.println(ColorPrint.ANSI_YELLOW+maxes[0].name+" was "+maxes[0].role+ColorPrint.ANSI_RESET);
-                    if(maxes[0].role==Roles.informer){
-                        Informer temp=(Informer)maxes[0];
-                        System.out.println(ColorPrint.ANSI_YELLOW+temp.action()+ColorPrint.ANSI_RESET);
-                    }
-                }
-            }
-            else{
-                if(freemasonKilled==null){
-                    System.out.println(ColorPrint.ANSI_YELLOW+"nobody died"+ColorPrint.ANSI_RESET);
-                }
-            }
-        }
-        else{
-            if(freemasonKilled==null){
-                System.out.println(ColorPrint.ANSI_YELLOW+"nobody died"+ColorPrint.ANSI_RESET);
-            }
-        }
-        //silenced
-        for(int i=0; i<size; i++){
-            if(Player[i].silenced){
-                System.out.println(ColorPrint.ANSI_YELLOW+"silenced "+Player[i].name+ColorPrint.ANSI_RESET);
-            }
-        }
-        System.out.println(ColorPrint.ANSI_YELLOW+array[0]+" swapped characters with "+array[1]+ColorPrint.ANSI_RESET);
-        nightGameFinish();
-    }
-    public static void nightGameFinish(){
-        if(Villagers.numberOfVillagers<=Mafias.numberOfMafias){
-            System.out.println(ColorPrint.ANSI_PURPLE+"Mafia won!"+ColorPrint.ANSI_RESET);
-            ans="Mafia won!";
-        }
-        else if(Mafias.numberOfMafias==0){
-            System.out.println(ColorPrint.ANSI_PURPLE+"Villagers won!"+ColorPrint.ANSI_RESET);
-            ans="Villagers won!";
-        }
-        else{
-            dayGuide();
-        }
-        nightReset();
-    }
-    public static void nightReset(){
-        for(int i=0; i<size; i++){
-            Player[i].NightVoted=0;
-            Player[i].called=false;
-            saved=new Players(" ", Roles.mafia);
-            ask=false;
-            freemasonKilled=null;
-            votedByMafia= new Players(" ", Roles.unknown);
-            votedByGodfather= new Players(" ", Roles.unknown);
-            votedBySilencer= new Players(" ", Roles.unknown);
-        }
-    }
-    public static void deleteKill(Players input){
-        for(int i=0; i<sizeOfTry; i++){
-            if(input==tryToKill[i]){
-                tryToKill[i]=null;
-                for(int j=i ; j<sizeOfTry; j++){
-                    tryToKill[j]=tryToKill[j+1];
-                }
-                sizeOfTry--;
-                tryToKill[sizeOfTry]=null;
             }
         }
     }

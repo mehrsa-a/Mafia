@@ -8,13 +8,16 @@ public class Informer extends Villagers{
         Random rand=new Random();
         int upperbound=4;
         int random=rand.nextInt(upperbound);
+        //maybe there is nobody that mafia tried to kill him but it didn't die
         if(random==1&&MainGame.sizeOfTry==0){
             random++;
         }
+        //maybe there is no joker at game
         boolean joker=false;
         for(int i=0; i<MainGame.size; i++){
-            if(MainGame.Player[i].role==Roles.Joker){
-                joker=true;
+            if (MainGame.Player[i].role == Roles.Joker) {
+                joker = true;
+                break;
             }
         }
         if(random==3&&!joker){

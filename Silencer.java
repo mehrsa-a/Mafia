@@ -1,4 +1,5 @@
 public class Silencer extends UsefulMafias{
+    //constructor
     public Silencer(String name, Roles role) {
         super(name, Roles.silencer);
     }

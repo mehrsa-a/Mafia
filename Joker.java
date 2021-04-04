@@ -1,4 +1,5 @@
 public class Joker extends Players{
+    //constructor
     private Joker(String name, Roles role) {
         super(name, role);
     }
