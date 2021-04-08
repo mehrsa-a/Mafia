@@ -3,7 +3,6 @@ public class Doctor extends UsefulVillagers{
     public Doctor(String name, Roles role) {
         super(name, role);
     }
-
     @Override
     public void action(String name) {
         int i;

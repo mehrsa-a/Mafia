@@ -1,10 +1,8 @@
 public class  Detective extends UsefulVillagers{
-    int k=0;
     //constructor
     public Detective(String name, Roles role) {
         super(name, role);
     }
-
     @Override
     public void action(String name){
         for(int i=0; i<100; i++){

@@ -55,12 +55,9 @@ public class NightHappenings {
                                     for(int j=0; j<MainGame.size; j++){
                                         if(MainGame.Player[j].name.equals(voted)){
                                             MainGame.Player[j].NightVoted++;
-                                            if(MainGame.Player[i].role==Roles.mafia){
-                                                MainGame.votedByMafia= MainGame.Player[j];
-                                            }
-                                            else{
-                                                MainGame.votedByGodfather= MainGame.Player[j];
-                                            }
+                                            MainGame.votedByMafia[MainGame.sizeOfVoted][0]= MainGame.Player[j];
+                                            MainGame.votedByMafia[MainGame.sizeOfVoted][1]= MainGame.Player[i];
+                                            MainGame.sizeOfVoted++;
                                             MainGame.tryToKill[MainGame.sizeOfTry]= MainGame.Player[i];
                                             MainGame.sizeOfTry++;
                                         }
@@ -69,39 +66,26 @@ public class NightHappenings {
                                 }
                                 //mafias can change their vote
                                 else{
-                                    if(MainGame.Player[i].role==Roles.mafia){
-                                        for(int j=0; j<MainGame.size; j++){
-                                            if(MainGame.Player[j]== MainGame.votedByMafia){
-                                                MainGame.Player[j].NightVoted--;
-                                            }
-                                        }
-                                        for(int j=0; j<MainGame.size; j++){
-                                            if(MainGame.Player[j].name.equals(voted)){
-                                                MainGame.Player[j].NightVoted++;
-                                                for(int k = 0; k< MainGame.sizeOfTry; k++){
-                                                    if(MainGame.tryToKill[k]== MainGame.votedByMafia){
-                                                        MainGame.tryToKill[k]= MainGame.Player[j];
-                                                    }
+                                    for(int j=0; j<MainGame.sizeOfVoted; j++){
+                                        if(MainGame.Player[i]==MainGame.votedByMafia[j][1]){
+                                            for(int k=0; k<MainGame.size; k++){
+                                                if(MainGame.Player[k]==MainGame.votedByMafia[j][0]){
+                                                    MainGame.Player[k].NightVoted--;
+
                                                 }
-                                                MainGame.votedByMafia= MainGame.Player[j];
                                             }
                                         }
                                     }
-                                    else{
-                                        for(int j=0; j<MainGame.size; j++){
-                                            if(MainGame.Player[j]== MainGame.votedByGodfather){
-                                                MainGame.Player[j].NightVoted--;
-                                            }
-                                        }
-                                        for(int j=0; j<MainGame.size; j++){
-                                            if(MainGame.Player[j].name.equals(voted)){
-                                                MainGame.Player[j].NightVoted++;
-                                                for(int k = 0; k< MainGame.sizeOfTry; k++){
-                                                    if(MainGame.tryToKill[k]== MainGame.votedByGodfather){
+                                    for(int j=0; j<MainGame.size; j++){
+                                        if(MainGame.Player[j].name.equals(voted)){
+                                            MainGame.Player[j].NightVoted++;
+                                            for(int k = 0; k< MainGame.sizeOfTry; k++){
+                                                for(int q=0; q<MainGame.sizeOfVoted; q++){
+                                                    if(MainGame.tryToKill[k]== MainGame.votedByMafia[q][0]){
                                                         MainGame.tryToKill[k]= MainGame.Player[j];
+                                                        MainGame.votedByMafia[q][0]= MainGame.Player[j];
                                                     }
                                                 }
-                                                MainGame.votedByGodfather= MainGame.Player[j];
                                             }
                                         }
                                     }
@@ -447,8 +431,9 @@ public class NightHappenings {
             MainGame.saved=new Players(" ", Roles.mafia);
             MainGame.ask=false;
             MainGame.freemasonKilled=null;
-            MainGame.votedByMafia= new Players(" ", Roles.unknown);
-            MainGame.votedByGodfather= new Players(" ", Roles.unknown);
+            MainGame.votedByMafia[i][0]= new Players(" ", Roles.unknown);
+            MainGame.votedByMafia[i][1]= new Players(" ", Roles.unknown);
+            MainGame.sizeOfVoted=0;
             MainGame.votedBySilencer= new Players(" ", Roles.unknown);
             MainGame.array=null;
         }

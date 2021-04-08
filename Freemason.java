@@ -1,5 +1,5 @@
 public class Freemason extends UsefulVillagers{
-    public Freemason(String name, Roles role) {
+    private Freemason(String name, Roles role) {
         super(name, role);
     }
     private static Freemason freemason=new Freemason(" ", Roles.freemason);

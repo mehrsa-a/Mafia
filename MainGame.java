@@ -26,8 +26,14 @@ public class MainGame{
     //check detective asking situation
     static boolean ask=false;
     //the one who mafias vote at night(mafias can take their vote back from them)
-    static Players votedByMafia= new Players(" ", Roles.unknown);
-    static Players votedByGodfather= new Players(" ", Roles.unknown);
+    static Players[][] votedByMafia=new Players[100][2];
+    static int sizeOfVoted=0;
+    {
+        for(int i=0; i<100; i++){
+            votedByMafia[i][0]=new Players(" ", Roles.unknown);
+            votedByMafia[i][1]=new Players(" ", Roles.unknown);
+        }
+    }
     static Players votedBySilencer= new Players(" ", Roles.unknown);
     //array for swap characters
     static String[] array;
